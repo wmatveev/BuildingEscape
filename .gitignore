@@ -1,0 +1,9 @@
+.vs
+*.xcworkspace
+.idea/
+Binaries/
+Intermediate/
+DerivedDataCache/
+Saved/
+Binaries/
+Build/
