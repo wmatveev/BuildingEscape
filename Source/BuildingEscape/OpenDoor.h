@@ -26,9 +26,14 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
+	void FOpenDoor() const;
+	
 	UPROPERTY(VisibleAnywhere)
-	float OpenDoor = 90.f;
+	float OpenAngle = 90.f;
 
 	UPROPERTY(EditAnywhere)
 	ATriggerVolume *PressurePlate;
+
+	UPROPERTY(EditAnywhere)
+	AActor *ActorThatOpens; // Remember pawn inherits from actor
 };
