@@ -3,6 +3,8 @@
 
 #include "Grabber.h"
 
+#include "DrawDebugHelpers.h"
+
 #define OUT 
 
 // Sets default values for this component's properties
@@ -40,7 +42,23 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		OUT PlayerViewPointLocation,
 		OUT PlayerViewPointRotation );
 	
-	UE_LOG(LogTemp, Warning, TEXT("Player Location: %s | Player Rotation: %s"),
-		*PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString())
+	// UE_LOG(LogTemp, Warning, TEXT("Player Location: %s | Player Rotation: %s"),
+	// 	*PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString())
+
+	// Конечная точка вектора направления
+	// FVector LineTraceEnd = PlayerViewPointLocation + FVector(0.f, 0.f, 50.f);
+	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
+	
+	// Визуализируем вектор
+	DrawDebugLine(
+		GetWorld(),
+		PlayerViewPointLocation,
+		LineTraceEnd,
+		FColor(255, 0, 0),
+		false,			// Чтобы в пространстве не оставался след, мы хотим чтобы она перересовывалась каждый кадр
+		0.f,			// Время жизни 0, чтобы не сохранялся луч в пространстве какое-то время
+		0.f,
+		10.f			// Толщина 
+	);
 }
 

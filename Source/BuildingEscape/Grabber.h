@@ -24,5 +24,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+private:
+	// На сколько далеко от игрока мы можем достать в см
+	UPROPERTY(VisibleAnywhere)
+	float Reach = 100.f;
+
 };
