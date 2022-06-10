@@ -24,7 +24,26 @@ void UGrabber::BeginPlay()
 	Super::BeginPlay();
 
 	UE_LOG(LogTemp, Warning, TEXT("Grabber reporting for duty!"));
-	
+
+	// Ищем прикрепленный PhysicsHandle
+	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	if (!PhysicsHandle) {
+		UE_LOG(LogTemp, Error, TEXT("%s компонент не содежит PhysicsHandle"), *GetOwner()->GetName());
+	}
+
+	// Ищем прикрепленный InputComponent
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	if (!InputComponent) {
+		UE_LOG(LogTemp, Error, TEXT("%s компонент не содежит InputComponent"), *GetOwner()->GetName());
+	}
+	else {
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+	}
+}
+
+void UGrabber::Grab()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grab pressed"))
 }
 
 
@@ -81,4 +100,5 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	}
 	
 }
+
 

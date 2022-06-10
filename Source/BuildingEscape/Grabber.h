@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "Grabber.generated.h"
 
 
@@ -26,7 +27,11 @@ public:
 
 private:
 	// На сколько далеко от игрока мы можем достать в см
-	UPROPERTY(VisibleAnywhere)
 	float Reach = 100.f;
 
+	UPhysicsHandleComponent *PhysicsHandle = nullptr;
+	UInputComponent *InputComponent = nullptr;
+
+	// Посылает луч и хватает то, до чего достал
+	void Grab();
 };
