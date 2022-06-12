@@ -34,4 +34,16 @@ private:
 
 	// Посылает луч и хватает то, до чего достал
 	void Grab();
+
+	// Вызывается, когда клавиша хватания отпущена
+	void Release();
+
+	// Находит прикрепленную физическую ручку
+	void FindPhysicsHandleComponent();
+
+	// Устанавливае прикрепленный input компонент
+	void SetupInputComponent();
+
+	// Возвращает удар (hit) для первого физического тела в досягаемости
+	const FHitResult GetFirstPhysicsBodyInReach();
 };
