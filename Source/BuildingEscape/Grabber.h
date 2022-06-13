@@ -17,6 +17,12 @@ public:
 	// Sets default values for this component's properties
 	UGrabber();
 
+	// Возвращаем начало линии досягаемости
+	void GetReachLineStart(FVector &PlayerLocation, FRotator &PlayerRotation) const;
+
+	// Возвращаем конец линии досягаемости
+	FVector GetReachLineEnd() const;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -45,5 +51,5 @@ private:
 	void SetupInputComponent();
 
 	// Возвращает удар (hit) для первого физического тела в досягаемости
-	const FHitResult GetFirstPhysicsBodyInReach();
+	FHitResult GetFirstPhysicsBodyInReach() const;
 };

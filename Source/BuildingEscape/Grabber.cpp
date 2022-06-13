@@ -17,13 +17,15 @@ UGrabber::UGrabber()
 	// ...
 }
 
-
 // Called when the game starts
 void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Ищем прикрепленный PhysicsHandle к пешке
 	FindPhysicsHandleComponent();
+
+	// Ищем прикрепленный InputComponent для захвата и отпускания
 	SetupInputComponent();
 }
 
@@ -49,7 +51,7 @@ void UGrabber::SetupInputComponent()
 	}
 }
 
-
+// ReSharper disable once CppMemberFunctionMayBeConst
 void UGrabber::Grab()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grab pressed"))
@@ -59,7 +61,7 @@ void UGrabber::Grab()
 	const FHitResult HitResult = GetFirstPhysicsBodyInReach();
 
 	UPrimitiveComponent *ComponentToGrab = HitResult.GetComponent();
-	AActor *ActorHit = HitResult.GetActor();
+	const AActor *ActorHit = HitResult.GetActor();
 	
 	// Если физическая ручка прикреплена
 	if(ActorHit)
@@ -67,20 +69,19 @@ void UGrabber::Grab()
 		// Двигаем объект, который мы держим
 		PhysicsHandle->GrabComponentAtLocationWithRotation(
 			ComponentToGrab,
-			NAME_None,
+			NAME_None,											// Никакие кости не нужны
 			ComponentToGrab->GetOwner()->GetActorLocation(),	// Местоположение захвата
 			ComponentToGrab->GetOwner()->GetActorRotation());	// Вращение
 	}
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void UGrabber::Release()
 {
 	if(PhysicsHandle->GrabbedComponent)
 	{
 		PhysicsHandle->ReleaseComponent();
 	}
-	
-	UE_LOG(LogTemp, Warning, TEXT("Grab released"))
 }
 
 
@@ -89,80 +90,56 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FVector  PlayerViewPointLocation;
-	FRotator PlayerViewPointRotation;
-
-	// Ищем игрока от первого лица в мире: GetWorld()->GetFirstPlayerController()
-	// Ищем точку зрения игрока: GetPlayerViewPoint(...)
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
-		OUT PlayerViewPointLocation,
-		OUT PlayerViewPointRotation );
-	
-	// UE_LOG(LogTemp, Warning, TEXT("Player Location: %s | Player Rotation: %s"),
-	// 	*PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString())
-
-	// Конечная точка вектора направления
-	// FVector LineTraceEnd = PlayerViewPointLocation + FVector(0.f, 0.f, 50.f);
-	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
-
 	// Если физическая ручка прикреплена
 	if(PhysicsHandle->GrabbedComponent)
 	{
 		// То мы будем двигать объект, который держим
-		PhysicsHandle->SetTargetLocation(LineTraceEnd);	// Установить местонахождение цели
+		PhysicsHandle->SetTargetLocation( GetReachLineEnd() );	// Установить местонахождение цели
 	}
-
 }
 
-const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
+// Ищем и возвращаем первый встретившийся нам физический компонент
+FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
 {
-	FVector  PlayerViewPointLocation;
-	FRotator PlayerViewPointRotation;
+	FHitResult	HitResult;
+	FVector		PlayerViewPointLocation;
+	FRotator	PlayerViewPointRotation;
 
-	// Ищем игрока от первого лица в мире: GetWorld()->GetFirstPlayerController()
-	// Ищем точку зрения игрока: GetPlayerViewPoint(...)
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
-		OUT PlayerViewPointLocation,
-		OUT PlayerViewPointRotation );
-	
-	// UE_LOG(LogTemp, Warning, TEXT("Player Location: %s | Player Rotation: %s"),
-	// 	*PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString())
-
-	// Конечная точка вектора направления
-	// FVector LineTraceEnd = PlayerViewPointLocation + FVector(0.f, 0.f, 50.f);
-	FVector LineTraceEnd = PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
-	
-	// Визуализируем вектор
-	// DrawDebugLine(
-	// 	GetWorld(),
-	// 	PlayerViewPointLocation,
-	// 	LineTraceEnd,
-	// 	FColor(255, 0, 0),
-	// 	false,			// Чтобы в пространстве не оставался след, мы хотим чтобы она перересовывалась каждый кадр
-	// 	0.f,			// Время жизни 0, чтобы не сохранялся луч в пространстве какое-то время
-	// 	0.f,
-	// 	10.f			// Толщина 
-	// );
-
+	// Ищем игрока от первого лица в мире
+	GetReachLineStart(PlayerViewPointLocation, PlayerViewPointRotation);
 
 	// Установить параметры запроса
 	FCollisionQueryParams TraceParametrs(FName(TEXT("")), false, GetOwner());
-	
-	FHitResult Hit;
-	
+
 	GetWorld()->LineTraceSingleByObjectType(
-		OUT Hit, // Результат удара
+		OUT HitResult, // Результат удара
 		PlayerViewPointLocation,
-		LineTraceEnd,
+		GetReachLineEnd(),
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
 		TraceParametrs
 	);
 
-	AActor *ActorHit = Hit.GetActor();
-	if(ActorHit) {
-		UE_LOG(LogTemp, Warning, TEXT("Actor is: %s"), *ActorHit->GetName());
-	}
-
-	return Hit;
+	return HitResult;
 }
 
+// Ищем игрока от первого лица в мире: GetWorld()->GetFirstPlayerController()
+// Ищем точку зрения игрока: GetPlayerViewPoint(...)
+// Ищем поворот игрока
+void UGrabber::GetReachLineStart(FVector &PlayerLocation, FRotator &PlayerRotation) const
+{
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+		OUT PlayerLocation,
+		OUT PlayerRotation );
+}
+
+FVector UGrabber::GetReachLineEnd() const
+{
+	FVector  PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+
+	GetReachLineStart(PlayerViewPointLocation, PlayerViewPointRotation);
+	
+	// Конечная точка вектора направления
+	// FVector LineTraceEnd = PlayerViewPointLocation + FVector(0.f, 0.f, 50.f);
+	return PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
+}
