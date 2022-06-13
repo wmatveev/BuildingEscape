@@ -28,6 +28,9 @@ public:
 private:
 	void OpenDoor() const;
 	void CloseDoor() const;
+
+	// Возвращает общую массу в кг
+	float GetTotalMassOfActorsOnPlate() const;
 	
 	UPROPERTY(EditAnywhere)
 	float OpenAngle = -90.f;
@@ -41,5 +44,5 @@ private:
 	float LastDoorOpenTime; // Время последнего открывания двери
 	
 	AActor *Owner;			// Актор обладающий дверью
-	AActor *ActorThatOpens; // Remember pawn inherits from actor
+	// AActor *ActorThatOpens; // Remember pawn inherits from actor
 };
