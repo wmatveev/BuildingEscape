@@ -66,6 +66,8 @@ void UGrabber::Grab()
 	// Если физическая ручка прикреплена
 	if(ActorHit)
 	{
+		if(!PhysicsHandle) { return; }
+
 		// Двигаем объект, который мы держим
 		PhysicsHandle->GrabComponentAtLocationWithRotation(
 			ComponentToGrab,
@@ -78,6 +80,8 @@ void UGrabber::Grab()
 // ReSharper disable once CppMemberFunctionMayBeConst
 void UGrabber::Release()
 {
+	if(!PhysicsHandle) { return; }
+
 	if(PhysicsHandle->GrabbedComponent)
 	{
 		PhysicsHandle->ReleaseComponent();
@@ -90,6 +94,8 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if(!PhysicsHandle) { return; }
+	
 	// Если физическая ручка прикреплена
 	if(PhysicsHandle->GrabbedComponent)
 	{

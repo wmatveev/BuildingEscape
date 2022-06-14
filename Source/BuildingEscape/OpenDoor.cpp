@@ -77,6 +77,8 @@ float UOpenDoor::GetTotalMassOfActorsOnPlate() const
 {
 	float TotalMass = 0.f;
 
+	if(!PressurePlate) { return TotalMass; }
+	
 	// Ищем всех акторов, находящихся в пересечении с триггером
 	TArray<AActor*> OverlappingActors;
 	PressurePlate->GetOverlappingActors(OUT OverlappingActors); 
