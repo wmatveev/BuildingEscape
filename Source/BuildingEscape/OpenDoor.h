@@ -7,6 +7,8 @@
 #include "Engine/TriggerVolume.h"
 #include "OpenDoor.generated.h"
 
+// Создаем новый класс
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOpenRequest);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BUILDINGESCAPE_API UOpenDoor : public UActorComponent
@@ -16,6 +18,10 @@ class BUILDINGESCAPE_API UOpenDoor : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UOpenDoor();
+
+	// Делаем так, чтобы созданный класс был назначаемый для BP
+	UPROPERTY(BlueprintAssignable)
+	FOnOpenRequest OnOpenRequest;
 
 protected:
 	// Called when the game starts
