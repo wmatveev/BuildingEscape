@@ -32,21 +32,6 @@ void UOpenDoor::BeginPlay()
 	// ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
 }
 
-void UOpenDoor::OpenDoor() const
-{
-	// Set the door rotation into pressure plate
-	// Owner->SetActorRotation( FRotator(0.f, OpenAngle, 0.f) );
-
-	// Вещаем на это событие
-	OnOpenRequest.Broadcast();
-}
-
-void UOpenDoor::CloseDoor() const
-{
-	// Set the door rotation after leave pressure plate
-	Owner->SetActorRotation( FRotator(0.f, 0.f, 0.f) );
-}
-
 // Called every frame
 void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -55,15 +40,14 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	// Pool the Trigger volume
 	// If the ActorThatOpens is in the volume we will open the door
 
-	if( GetTotalMassOfActorsOnPlate() > 30.f ) // @todo make into a parametr
+	if( GetTotalMassOfActorsOnPlate() > TriggerMass ) // @todo make into a parametr
 	{
-		OpenDoor();
-		LastDoorOpenTime = GetWorld()->GetTimeSeconds();
+		// Вещаем на это событие
+		OnOpenRequest.Broadcast();
 	}
 	else
 	{
-		if( (GetWorld()->GetTimeSeconds() - LastDoorOpenTime) > DoorCloseDelay )
-			CloseDoor();
+		OnCloseRequest.Broadcast();		
 	}
 	
 /*
@@ -89,6 +73,7 @@ float UOpenDoor::GetTotalMassOfActorsOnPlate() const
 	
 	// Ищем всех акторов, находящихся в пересечении с триггером
 	TArray<AActor*> OverlappingActors;
+	
 	PressurePlate->GetOverlappingActors(OUT OverlappingActors); 
 
 	// Плюсуем их массу

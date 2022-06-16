@@ -8,7 +8,7 @@
 #include "OpenDoor.generated.h"
 
 // Создаем новый класс
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOpenRequest);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDoorEvent);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BUILDINGESCAPE_API UOpenDoor : public UActorComponent
@@ -21,7 +21,10 @@ public:
 
 	// Делаем так, чтобы созданный класс был назначаемый для BP
 	UPROPERTY(BlueprintAssignable)
-	FOnOpenRequest OnOpenRequest;
+	FDoorEvent OnOpenRequest;
+
+	UPROPERTY(BlueprintAssignable)
+	FDoorEvent OnCloseRequest;
 
 protected:
 	// Called when the game starts
@@ -32,23 +35,14 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-	void OpenDoor() const;
-	void CloseDoor() const;
-
-	// Возвращает общую массу в кг
-	float GetTotalMassOfActorsOnPlate() const;
-	
-	UPROPERTY(EditAnywhere)
-	float OpenAngle = -90.f;
-
 	UPROPERTY(EditAnywhere)
 	ATriggerVolume *PressurePlate = nullptr;
 
-	// Задержка закрытия двери
 	UPROPERTY(EditAnywhere)
-	float DoorCloseDelay = 1.f;
-	float LastDoorOpenTime; // Время последнего открывания двери
+	float TriggerMass = 30.f;
 	
-	AActor *Owner;			// Актор обладающий дверью
-	// AActor *ActorThatOpens; // Remember pawn inherits from actor
+	AActor *Owner; // Актор обладающий дверью
+	
+	// Возвращает общую массу в кг
+	float GetTotalMassOfActorsOnPlate() const;
 };
